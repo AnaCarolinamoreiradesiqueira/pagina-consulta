@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultas Registradas</title>
+    <link rel="stylesheet" href="stylesmostrar.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Consultas Registradas</h1>
+        
+        <div id="consultas-list"></div>
+
+        <button onclick="window.location.href='index.html'" class="btn btn-secondary">Voltar</button>
+    </div>
+
+    <script>
+        async function carregarConsultas() {
+            try {
+                const response = await fetch("http://localhost:3031/mostrar");
+                const consultas = await response.json();
+
+                if (consultas.length === 0) {
+                    document.getElementById("consultas-list").innerHTML = "<p>Não há consultas registradas.</p>";
+                    return;
+                }
+
+                let tabela = "<table class='table'><thead><tr><th>Médico</th><th>Especialidade</th><th>Paciente</th><th>Data Nascimento</th><th>Tipo Consulta</th><th>Data Consulta</th><th>Ações</th></tr></thead><tbody>";
+
+                consultas.forEach(consulta => {
+                    tabela += `
+                        <tr id="consulta-${consulta.id}">
+                            <td>${consulta.nmmedico}</td>
+                            <td>${consulta.espmedico}</td>
+                            <td>${consulta.nmpaciente}</td>
+                            <td>${consulta.dtnascimento}</td>
+                            <td>${consulta.tipoconsulta}</td>
+                            <td>${consulta.dtconsulta}</td>
+                            <td>
+                                <button onclick="editarConsulta(${consulta.id})" class="btn btn-primary">Editar</button>
+                                <button onclick="excluirConsulta(${consulta.id})" class="btn btn-danger">Excluir</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tabela += "</tbody></table>";
+                document.getElementById("consultas-list").innerHTML = tabela;
+            } catch (error) {
+                alert('Erro ao consultar registros: ' + error.message);
+            }
+        }
+        async function editarConsulta(id) {
+    window.location.href = `editar.html?id=${id}`;
+}
+
+    async function excluirConsulta(id) {
+        if (confirm("Tem certeza que deseja excluir esta consulta?")) {
+            try {
+                const response = await fetch(`http://localhost:3031/deletar/${id}`, {
+                    method: 'GET',
+                });
+
+                if (response.ok) {
+                    document.getElementById(`consulta-${id}`).remove();
+                    alert("Consulta excluída com sucesso!");
+                } else {
+                    alert("Erro ao excluir consulta.");
+                }
+            } catch (error) {
+                alert('Erro ao excluir consulta: ' + error.message);
+            }
+        }
+    }
+
+    window.onload = carregarConsultas;
+    </script>
+</body>
+</html>
+

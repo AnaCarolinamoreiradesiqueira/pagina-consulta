@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultas Médicas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Consultas Médicas</h1>
+
+        <form id="consulta-form">
+            <div class="input-group">
+                <label for="medico">Nome do Médico:</label>
+                <input type="text" id="medico" name="medico" placeholder="Nome do médico" required>
+            </div>
+
+            <div class="input-group">
+                <label for="especialidade">Especialidade Médica:</label>
+                <input type="text" id="especialidade" name="especialidade" placeholder="Especialidade médica" required>
+            </div>
+
+            <div class="input-group">
+                <label for="paciente">Nome do Paciente:</label>
+                <input type="text" id="paciente" name="paciente" placeholder="Nome do paciente" required>
+            </div>
+
+            <div class="input-group">
+                <label for="data-nascimento">Data de Nascimento:</label>
+                <input type="date" id="data-nascimento" name="data-nascimento" required>
+            </div>
+
+            <div class="input-group">
+                <label for="tipo-consulta">Tipo de Consulta:</label>
+                <select id="tipo-consulta" name="tipo-consulta" required>
+                    <option value="particular">Particular</option>
+                    <option value="unimed">Unimed</option>
+                    <option value="hbc">HBC</option>
+                    <option value="intermedica">Intermédica</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="data-consulta">Data da Consulta:</label>
+                <input type="date" id="data-consulta" name="data-consulta" required>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" type="submit">Cadastrar</button>
+                <button class="btn btn-secondary" type="button" onclick="window.location.href='mostrar.html'">Consultar Registros</button>
+            </div>
+            <div id="consultas-list"></div>
+        </form>
+    </div>
+
+    <script>
+        
+        document.getElementById("consulta-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+           
+            const data = {
+                nmmedico: formData.get('medico'),
+                espmedico: formData.get('especialidade'),
+                nmpaciente: formData.get('paciente'),
+                dtnascimento: formData.get('data-nascimento'),
+                tipoconsulta: formData.get('tipo-consulta'),
+                dtconsulta: formData.get('data-consulta'),
+            };
+
+            try {
+              
+                const response = await fetch("http://localhost:3031/salvar", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(result.resposta || 'Consulta registrada com sucesso!');
+                } else {
+                    alert('Erro: ' + result.message);
+                }
+            } catch (error) {
+                alert('Erro ao registrar consulta: ' + error.message);
+            }
+        });
+       
+  
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Consulta</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Editar Consulta</h1>
+        
+        <form id="form-editar" onsubmit="salvarAlteracoes(event)">
+            <div>
+                <label for="nmmedico">Médico:</label>
+                <input type="text" id="nmmedico" name="nmmedico" required>
+            </div>
+            <div>
+                <label for="espmedico">Especialidade:</label>
+                <input type="text" id="espmedico" name="espmedico" required>
+            </div>
+            <div>
+                <label for="nmpaciente">Paciente:</label>
+                <input type="text" id="nmpaciente" name="nmpaciente" required>
+            </div>
+            <div>
+                <label for="dtnascimento">Data de Nascimento:</label>
+                <input type="date" id="dtnascimento" name="dtnascimento" required>
+            </div>
+            <div>
+                <label for="tipoconsulta">Tipo de Consulta:</label>
+                <input type="text" id="tipoconsulta" name="tipoconsulta" required>
+            </div>
+            <div>
+                <label for="dtconsulta">Data da Consulta:</label>
+                <input type="datetime-local" id="dtconsulta" name="dtconsulta" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            <button type="button" onclick="window.history.back()" class="btn btn-secondary">Cancelar</button>
+        </form>
+    </div>
+
+    <script>
+      
+        async function carregarConsultaParaEdicao() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const consultaId = urlParams.get("id");
+
+            try {
+                const response = await fetch(`http://localhost:3031/mostrar/${consultaId}`);
+                const consulta = await response.json();
+
+                if (consulta) {
+                    document.getElementById('nmmedico').value = consulta.nmmedico;
+                    document.getElementById('espmedico').value = consulta.espmedico;
+                    document.getElementById('nmpaciente').value = consulta.nmpaciente;
+                    document.getElementById('dtnascimento').value = consulta.dtnascimento;
+                    document.getElementById('tipoconsulta').value = consulta.tipoconsulta;
+                    document.getElementById('dtconsulta').value = consulta.dtconsulta;
+                } else {
+                    alert('Consulta não encontrada!');
+                }
+            } catch (error) {
+                alert('Erro ao carregar os dados da consulta: ' + error.message);
+            }
+        }
+
+     
+        async function salvarAlteracoes(event) {
+            event.preventDefault();
+
+            const formData = new FormData(document.getElementById("form-editar"));
+            const dados = {
+                nmmedico: formData.get("nmmedico"),
+                espmedico: formData.get("espmedico"),
+                nmpaciente: formData.get("nmpaciente"),
+                dtnascimento: formData.get("dtnascimento"),
+                tipoconsulta: formData.get("tipoconsulta"),
+                dtconsulta: formData.get("dtconsulta")
+            };
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const consultaId = urlParams.get("id");
+
+            try {
+                const response = await fetch(`http://localhost:3031/editar/${consultaId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                if (response.ok) {
+                    alert('Consulta editada com sucesso!');
+                    window.location.href = 'consultas.html'; 
+                } else {
+                    alert('Erro ao salvar as alterações.');
+                }
+            } catch (error) {
+                alert('Erro ao editar a consulta: ' + error.message);
+            }
+        }
+
+        
+        window.onload = carregarConsultaParaEdicao;
+    </script>
+</body>
+</html>
